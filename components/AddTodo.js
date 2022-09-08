@@ -7,10 +7,23 @@ import {
   TouchableOpacity,
   Platform,
   TouchableNativeFeedback,
+  Keyboard,
 } from 'react-native';
 
-function AddTodo() {
+function AddTodo({onInsert}) {
   const [text, setText] = useState('');
+
+  const onPress = () => {
+    onInsert(text);
+    setText('');
+    Keyboard.dismiss();
+  };
+
+  const button = (
+    <View style={styles.buttonStyle}>
+      <Image source={require('../assets/icons/add_white/add_white.png')} />
+    </View>
+  );
 
   return (
     <View style={styles.block}>
@@ -19,26 +32,23 @@ function AddTodo() {
         style={styles.input}
         value={text}
         onChangeText={setText}
+        onSubmitEditing={onPress}
+        returnKeyType="done"
       />
-      {Platform.OS === 'ios' ? (
-        <TouchableOpacity activeOpacity={0.5}>
-          <View style={styles.buttonStyle}>
-            <Image
-              source={require('../assets/icons/add_white/add_white.png')}
-            />
+      {Platform.select({
+        ios: (
+          <TouchableOpacity activeOpacity={0.5} onPress={onPress}>
+            {button}
+          </TouchableOpacity>
+        ),
+        android: (
+          <View style={styles.circleWrapper}>
+            <TouchableNativeFeedback onPress={onPress}>
+              {button}
+            </TouchableNativeFeedback>
           </View>
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.circleWrapper}>
-          <TouchableNativeFeedback>
-            <View style={styles.buttonStyle}>
-              <Image
-                source={require('../assets/icons/add_white/add_white.png')}
-              />
-            </View>
-          </TouchableNativeFeedback>
-        </View>
-      )}
+        ),
+      })}
     </View>
   );
 }
